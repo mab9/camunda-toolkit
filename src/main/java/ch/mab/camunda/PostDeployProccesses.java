@@ -14,6 +14,7 @@ public class PostDeployProccesses {
 
     @EventListener
     private void processPostDeploy(PostDeployEvent event) {
+        runtimeService.startProcessInstanceByKey("development-process");
         runtimeService.startProcessInstanceByKey("postDeployProcess");
     }
 }

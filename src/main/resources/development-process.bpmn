@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_0yex15f" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
+  <bpmn:process id="development-process" name="Development Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_08kfdh1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="planning" name="Planning" camunda:expression="${&#39;true&#39; == &#39;true&#39;}" camunda:resultVariable="planned">
+      <bpmn:incoming>SequenceFlow_08kfdh1</bpmn:incoming>
+      <bpmn:incoming>condition.commited.false</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0g0u8ny</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Commitment" name="Commitment">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="committed" label="Are you committed?" type="string" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0g0u8ny</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_05fb8io</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Developing" name="Developing" camunda:delegateExpression="${developingService}">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${developingListener}" event="start" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0g6sjcd</bpmn:incoming>
+      <bpmn:incoming>condition.go.false</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0zrfjua</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Testing" name="Testing" camunda:expression="${logService.doNothing()}">
+      <bpmn:incoming>SequenceFlow_0zrfjua</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0fqnkig</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Deployment" name="Deployment" camunda:expression="${logService.log(&#34;that took sooo long!&#34;)}">
+      <bpmn:incoming>condition.go.true</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_07t2w86</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Review" name="Review" camunda:expression="${logService.log(&#34;bug,bug,ok,bad,good&#34;)}">
+      <bpmn:incoming>SequenceFlow_07t2w86</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_11gv2tl</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="go" name="Go">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="go" label="Go for deployment" type="string" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0fqnkig</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1fnwnd9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1lxddw5">
+      <bpmn:incoming>SequenceFlow_1fnwnd9</bpmn:incoming>
+      <bpmn:outgoing>condition.go.true</bpmn:outgoing>
+      <bpmn:outgoing>condition.go.false</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1fnwnd9" sourceRef="go" targetRef="ExclusiveGateway_1lxddw5" />
+    <bpmn:sequenceFlow id="condition.go.true" name="if go " sourceRef="ExclusiveGateway_1lxddw5" targetRef="Deployment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${go != null &amp;&amp; go == "true"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_07t2w86" sourceRef="Deployment" targetRef="Review" />
+    <bpmn:endEvent id="EndEvent_0wxjy79">
+      <bpmn:incoming>SequenceFlow_11gv2tl</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_11gv2tl" sourceRef="Review" targetRef="EndEvent_0wxjy79" />
+    <bpmn:sequenceFlow id="SequenceFlow_08kfdh1" sourceRef="StartEvent_1" targetRef="planning" />
+    <bpmn:sequenceFlow id="SequenceFlow_0g0u8ny" sourceRef="planning" targetRef="Commitment" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_02cizmj">
+      <bpmn:incoming>SequenceFlow_05fb8io</bpmn:incoming>
+      <bpmn:outgoing>condition.commited.false</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0g6sjcd</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="condition.commited.false" name="team is not committed" sourceRef="ExclusiveGateway_02cizmj" targetRef="planning">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!committed}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_05fb8io" sourceRef="Commitment" targetRef="ExclusiveGateway_02cizmj" />
+    <bpmn:sequenceFlow id="SequenceFlow_0g6sjcd" name="if committed" sourceRef="ExclusiveGateway_02cizmj" targetRef="Developing">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${committed != null &amp;&amp; committed == "true"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0zrfjua" sourceRef="Developing" targetRef="Testing" />
+    <bpmn:sequenceFlow id="SequenceFlow_0fqnkig" sourceRef="Testing" targetRef="go" />
+    <bpmn:sequenceFlow id="condition.go.false" name="if no go" sourceRef="ExclusiveGateway_1lxddw5" targetRef="Developing" />
+    <bpmn:dataObjectReference id="DataObjectReference_1rmuuk0" name="With camunda:expression it is possible to evaluate a value expression or to invoke a method expression. You can use special variables which are available inside an expression or Spring and CDI beans." dataObjectRef="DataObject_1679n03">
+      <bpmn:documentation>With camunda:expression it is possible to evaluate a value expression or to invoke a method expression. You can use special variables which are available inside an expression or Spring and CDI beans.</bpmn:documentation>
+    </bpmn:dataObjectReference>
+    <bpmn:dataObject id="DataObject_1679n03" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="development-process">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="56" y="439" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1knywgx_di" bpmnElement="planning" bioc:stroke="#FB8C00" bioc:fill="#FFE0B2">
+        <dc:Bounds x="195" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0qzbtkj_di" bpmnElement="Commitment" bioc:stroke="#1E88E5" bioc:fill="#BBDEFB">
+        <dc:Bounds x="403" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0td7eoy_di" bpmnElement="Developing" bioc:stroke="#FB8C00" bioc:fill="#FFE0B2">
+        <dc:Bounds x="679" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1dk7i1u_di" bpmnElement="Testing" bioc:stroke="#FB8C00" bioc:fill="#FFE0B2">
+        <dc:Bounds x="847" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1bp4tq4_di" bpmnElement="Deployment" bioc:stroke="#FB8C00" bioc:fill="#FFE0B2">
+        <dc:Bounds x="1372" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1y39kvn_di" bpmnElement="Review" bioc:stroke="#FB8C00" bioc:fill="#FFE0B2">
+        <dc:Bounds x="1555" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0ujixi4_di" bpmnElement="go" bioc:stroke="#1E88E5" bioc:fill="#BBDEFB">
+        <dc:Bounds x="1054" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1lxddw5_di" bpmnElement="ExclusiveGateway_1lxddw5" isMarkerVisible="true" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
+        <dc:Bounds x="1245" y="432" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1fnwnd9_di" bpmnElement="SequenceFlow_1fnwnd9">
+        <di:waypoint x="1154" y="457" />
+        <di:waypoint x="1245" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_169bfgu_di" bpmnElement="condition.go.true">
+        <di:waypoint x="1295" y="457" />
+        <di:waypoint x="1372" y="457" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1324" y="439" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_07t2w86_di" bpmnElement="SequenceFlow_07t2w86">
+        <di:waypoint x="1472" y="457" />
+        <di:waypoint x="1555" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0wxjy79_di" bpmnElement="EndEvent_0wxjy79">
+        <dc:Bounds x="1768" y="439" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_11gv2tl_di" bpmnElement="SequenceFlow_11gv2tl">
+        <di:waypoint x="1655" y="457" />
+        <di:waypoint x="1768" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_08kfdh1_di" bpmnElement="SequenceFlow_08kfdh1">
+        <di:waypoint x="92" y="457" />
+        <di:waypoint x="195" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0g0u8ny_di" bpmnElement="SequenceFlow_0g0u8ny">
+        <di:waypoint x="295" y="457" />
+        <di:waypoint x="403" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_02cizmj_di" bpmnElement="ExclusiveGateway_02cizmj" isMarkerVisible="true" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
+        <dc:Bounds x="547" y="432" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_10vjh5v_di" bpmnElement="condition.commited.false">
+        <di:waypoint x="572" y="432" />
+        <di:waypoint x="572" y="261" />
+        <di:waypoint x="245" y="261" />
+        <di:waypoint x="245" y="417" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="382" y="243" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_05fb8io_di" bpmnElement="SequenceFlow_05fb8io">
+        <di:waypoint x="503" y="457" />
+        <di:waypoint x="547" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0g6sjcd_di" bpmnElement="SequenceFlow_0g6sjcd">
+        <di:waypoint x="597" y="457" />
+        <di:waypoint x="679" y="457" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="609" y="439" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0zrfjua_di" bpmnElement="SequenceFlow_0zrfjua">
+        <di:waypoint x="779" y="457" />
+        <di:waypoint x="847" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0fqnkig_di" bpmnElement="SequenceFlow_0fqnkig">
+        <di:waypoint x="947" y="457" />
+        <di:waypoint x="1054" y="457" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0j8u2u1_di" bpmnElement="condition.go.false">
+        <di:waypoint x="1270" y="432" />
+        <di:waypoint x="1270" y="259" />
+        <di:waypoint x="729" y="259" />
+        <di:waypoint x="729" y="417" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="982" y="241" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="DataObjectReference_1rmuuk0_di" bpmnElement="DataObjectReference_1rmuuk0">
+        <dc:Bounds x="227" y="540" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="201" y="597" width="88" height="198" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
