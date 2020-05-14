@@ -1,0 +1,11 @@
+camunda.bpm:
+  admin-user:
+    id: mab
+    password: mab
+    firstName: Marc-Antoine
+  filter:
+    create: All tasks
+
+camunda:
+  bpm:
+    auto-deployment-enabled: true
