@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1q1lxo2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
+  <bpmn:process id="schdulerMainProcess" isExecutable="true">
+    <bpmn:userTask id="UserTask_0b3u9v0" name="Init Cycling">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="endProcess" label="endProcess" type="boolean" defaultValue="0" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0f2oapt</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_13lvylu</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0f2oapt" sourceRef="StartEvent_09jjo33" targetRef="UserTask_0b3u9v0" />
+    <bpmn:sequenceFlow id="SequenceFlow_13lvylu" sourceRef="UserTask_0b3u9v0" targetRef="EndEvent_0zablf4" />
+    <bpmn:endEvent id="EndEvent_0zablf4">
+      <bpmn:incoming>SequenceFlow_13lvylu</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+    <bpmn:startEvent id="StartEvent_09jjo33">
+      <bpmn:outgoing>SequenceFlow_0f2oapt</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ServiceTask_0uxrmo3" name="Logger" camunda:asyncBefore="true" camunda:expression="${logService.log(&#34;catched in main process!&#34;)}">
+      <bpmn:incoming>SequenceFlow_1mh45ye</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0qsvu8h</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1mh45ye" sourceRef="IntermediateThrowEvent_0wz2x2r" targetRef="ServiceTask_0uxrmo3" />
+    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_0wz2x2r">
+      <bpmn:outgoing>SequenceFlow_1mh45ye</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_13bjzrt" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="EndEvent_0hfmp9e">
+      <bpmn:incoming>SequenceFlow_0qsvu8h</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0qsvu8h" sourceRef="ServiceTask_0uxrmo3" targetRef="EndEvent_0hfmp9e" />
+  </bpmn:process>
+  <bpmn:message id="Message_13bjzrt" name="end_message" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="schdulerMainProcess">
+      <bpmndi:BPMNShape id="UserTask_0b3u9v0_di" bpmnElement="UserTask_0b3u9v0">
+        <dc:Bounds x="699" y="201" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0f2oapt_di" bpmnElement="SequenceFlow_0f2oapt">
+        <di:waypoint x="531" y="241" />
+        <di:waypoint x="699" y="241" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_13lvylu_di" bpmnElement="SequenceFlow_13lvylu">
+        <di:waypoint x="799" y="241" />
+        <di:waypoint x="1051" y="241" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0b964uw_di" bpmnElement="EndEvent_0zablf4">
+        <dc:Bounds x="1051" y="223" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_09jjo33_di" bpmnElement="StartEvent_09jjo33">
+        <dc:Bounds x="495" y="223" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0uxrmo3_di" bpmnElement="ServiceTask_0uxrmo3">
+        <dc:Bounds x="699" y="388" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1mh45ye_di" bpmnElement="SequenceFlow_1mh45ye">
+        <di:waypoint x="531" y="428" />
+        <di:waypoint x="699" y="428" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_026at50_di" bpmnElement="IntermediateThrowEvent_0wz2x2r">
+        <dc:Bounds x="495" y="410" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0hfmp9e_di" bpmnElement="EndEvent_0hfmp9e">
+        <dc:Bounds x="967" y="410" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0qsvu8h_di" bpmnElement="SequenceFlow_0qsvu8h">
+        <di:waypoint x="799" y="428" />
+        <di:waypoint x="967" y="428" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LogService {
 
+    // todo the diff to delegate execution -> no scope access
+
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     /*
@@ -22,6 +24,9 @@ public class LogService {
         log.info("those are the provided params: {} ", customParams);
     }
 
+    /*
+        This method is invoked by the camunda process!
+    */
     public void doNothing() {
         log.info("do nothing");
     }
