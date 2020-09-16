@@ -18,7 +18,7 @@
       <bpmn:incoming>SequenceFlow_0g0u8ny</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_05fb8io</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Developing" name="Developing" camunda:delegateExpression="${developingService}">
+    <bpmn:serviceTask id="Developing" name="Developing" camunda:delegateExpression="${developingDelegate}">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${developingListener}" event="start" />
       </bpmn:extensionElements>
