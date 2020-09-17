@@ -1,40 +1,56 @@
 package ch.mab.camunda;
 
-import ch.mab.camunda.dev.process.DevelopingService;
+import static org.junit.Assert.assertEquals;
+
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
-import org.camunda.bpm.engine.test.mock.Mocks;
 import org.camunda.bpm.spring.boot.starter.test.helper.AbstractProcessEngineRuleTest;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.mockito.Mock;
 
 // https://docs.camunda.org/manual/7.5/user-guide/testing/
 // https://camunda.com/best-practices/testing-process-definitions/
 
+//@RunWith(SpringRunner.class)
 public class DevelopingProcessTest extends AbstractProcessEngineRuleTest {
 
-    @Mock // Mockito mock instantiated by PowerMockRunner
-    private DevelopingService developingService;
-
-    @After
-    public void teardown() {
-        Mocks.reset();
-    }
+    private final String KEY_DEVELOPMENT_PROCESS = "development-process";
 
     @Test
-    @Deployment(resources = "development-process.bpmn")
-    public void testDevelopmentProcess() {
+    @Deployment(resources = KEY_DEVELOPMENT_PROCESS + ".bpmn")
+    public void test_demo() {
         RuntimeService runtimeService = processEngine.getRuntimeService();
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("development-process");
+        runtimeService.startProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS);
 
         TaskService taskService = processEngine.getTaskService();
         Task task = taskService.createTaskQuery().singleResult();
-        Assertions.assertEquals("Commitment", task.getName());
+
+        assertEquals("Commitment", task.getName());
+    }
+
+    @Test
+    @Deployment(resources = KEY_DEVELOPMENT_PROCESS + ".bpmn")
+    public void testDevelopmentProcess() {
+        RuntimeService runtimeService = processEngine.getRuntimeService();
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS);
+
+        TaskService taskService = processEngine.getTaskService();
+        Task task = taskService.createTaskQuery().singleResult();
+
+        assertTaskName("Commitment", task);
+
+        runtimeService.setVariable(task.getExecutionId(), "committed", "false");
+        taskService.complete(task.getId());
+
+        task = taskService.createTaskQuery().singleResult();
+        assertTaskName("Commitment", task);
+    }
+
+    private void assertTaskName(String name, Task task) {
+        Assertions.assertEquals(name, task.getName());
     }
 
 }
