@@ -1,10 +1,10 @@
 package ch.mab.camunda;
 
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
 
 import ch.mab.camunda.dev.process.DevelopingDelegate;
 import ch.mab.camunda.dev.process.DevelopingListener;
-import ch.mab.camunda.dev.process.DevelopingService;
 import ch.mab.camunda.dev.process.LogService;
 import javax.annotation.PostConstruct;
 import org.camunda.bpm.engine.ProcessEngine;
@@ -14,6 +14,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
+import org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -26,11 +27,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {InMemProcessEngineConfiguration.class})
-public class DevelopingProcessAnnotationTest {
+public class DevelopingProcessTest {
 
     @Rule
     @ClassRule
-    public static ProcessEngineRule rule;
+    public static ProcessEngineRule processEngineRule;
 
     private final String KEY_DEVELOPMENT_PROCESS = "development-process";
 
@@ -51,57 +52,51 @@ public class DevelopingProcessAnnotationTest {
 
     @PostConstruct
     void initRule() {
-        rule = TestCoverageProcessEngineRuleBuilder.create(processEngine).build();
+        // do as well activate test coverage calculation
+        // located at: target/process-test-coverage
+        processEngineRule = TestCoverageProcessEngineRuleBuilder.create(processEngine).build();
     }
-
-/*    @After
-    public void calculateCoverageForAllTests() throws Exception {
-        ProcessTestCoverage.calculate(rule.getProcessEngine());
-    }*/
 
     @Test
     @Deployment(resources = KEY_DEVELOPMENT_PROCESS + ".bpmn")
-    public void test_demo() {
+    public void start_process() {
         RuntimeService runtimeService = processEngine.getRuntimeService();
         final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS);
-        Task task = taskService.createTaskQuery().singleResult();
-        assertThat(processInstance).isWaitingAt("Commitment");
+        assertThat(processInstance).isStarted();
     }
 
     @Test
     @Deployment(resources = KEY_DEVELOPMENT_PROCESS + ".bpmn")
     public void testDevelopmentProcess() {
         RuntimeService runtimeService = processEngine.getRuntimeService();
-        final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS);
-
-        assertThat(processInstance).isWaitingAt("Commitment");
-
-        TaskService taskService = processEngine.getTaskService();
-        Task task = taskService.createTaskQuery().singleResult();
-
-        assertThat(processInstance).isWaitingAt("Commitment");
-
-        runtimeService.setVariable(task.getExecutionId(), "committed", "false");
-        taskService.complete(task.getId());
-
-        task = taskService.createTaskQuery().singleResult();
-        assertThat(processInstance).isWaitingAt("Commitment");
-    }
-
-    @Test
-    @Deployment(resources = KEY_DEVELOPMENT_PROCESS + ".bpmn")
-    public void testDevelopmentProcess2() {
-        RuntimeService runtimeService = processEngine.getRuntimeService();
-        final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS);
-
-        assertThat(processInstance).isWaitingAt("Commitment");
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS);
+        // committed is a default variable...
+        //ProcessInstance processInstance = runtimeService.createProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS).setVariable("committed", false).execute();
 
         TaskService taskService = processEngine.getTaskService();
         Task task = taskService.createTaskQuery().singleResult();
+        final String executionId = task.getExecutionId();
 
-        runtimeService.setVariable(task.getExecutionId(), "committed", "true");
-        taskService.complete(task.getId());
+        assertThat(processInstance).isWaitingAt("Commitment");
+
+        // human task
+        runtimeService.setVariable(executionId, "committed", false);
+        complete(BpmnAwareTests.task());
+        assertThat(processInstance).isWaitingAt("Commitment");
+
+        // human task
+        runtimeService.setVariable(task.getExecutionId(), "committed", true);
+        complete(BpmnAwareTests.task());
         assertThat(processInstance).isWaitingAt("go");
-    }
 
+        // human task
+        runtimeService.setVariable(task.getExecutionId(), "go", false);
+        complete(BpmnAwareTests.task());
+        assertThat(processInstance).isWaitingAt("go");
+
+        // human task
+        runtimeService.setVariable(task.getExecutionId(), "go", true);
+        complete(BpmnAwareTests.task());
+        assertThat(processInstance).isEnded();
+    }
 }
