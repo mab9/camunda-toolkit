@@ -6,10 +6,15 @@ import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complet
 import ch.mab.camunda.dev.process.DevelopingDelegate;
 import ch.mab.camunda.dev.process.DevelopingListener;
 import ch.mab.camunda.dev.process.LogService;
+import java.util.Comparator;
+import java.util.List;
 import javax.annotation.PostConstruct;
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.history.HistoricActivityInstance;
+import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
@@ -19,6 +24,7 @@ import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageP
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,7 +42,13 @@ public class DevelopingProcessTest {
     private final String KEY_DEVELOPMENT_PROCESS = "development-process";
 
     @Autowired
+    TaskService taskService;
+
+    @Autowired
     ProcessEngine processEngine;
+
+    @Autowired
+    HistoryService historyService;
 
     @MockBean(name = "developingListener")
     DevelopingListener developingListener;
@@ -46,9 +58,6 @@ public class DevelopingProcessTest {
 
     @MockBean(name = "logService")
     LogService logService;
-
-    @Autowired
-    TaskService taskService;
 
     @PostConstruct
     void initRule() {
@@ -98,5 +107,14 @@ public class DevelopingProcessTest {
         runtimeService.setVariable(task.getExecutionId(), "go", true);
         complete(BpmnAwareTests.task());
         assertThat(processInstance).isEnded();
+
+        List<HistoricActivityInstance> list = historyService.createHistoricActivityInstanceQuery().activityType("serviceTask").list();
+        list.addAll(historyService.createHistoricActivityInstanceQuery().activityType("userTask").list());
+        list.sort(Comparator.comparing(HistoricActivityInstance::getStartTime));
+
+        Assertions.assertEquals(12, list.size());
+
+        // todo assert all tasks according execution
+
     }
 }

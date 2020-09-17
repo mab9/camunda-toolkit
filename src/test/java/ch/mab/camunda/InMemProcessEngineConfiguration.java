@@ -2,8 +2,10 @@ package ch.mab.camunda;
 
 import java.lang.reflect.Method;
 import javax.sql.DataSource;
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.impl.HistoryServiceImpl;
 import org.camunda.bpm.engine.impl.TaskServiceImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
@@ -12,7 +14,6 @@ import org.camunda.bpm.engine.spring.SpringExpressionManager;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.extension.process_test_coverage.spring.SpringProcessWithCoverageEngineConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +43,11 @@ public class InMemProcessEngineConfiguration {
     @Bean
     public PlatformTransactionManager transactionManager() {
         return new DataSourceTransactionManager(dataSource());
+    }
 
+    @Bean
+    public HistoryService historyService() {
+        return new HistoryServiceImpl();
     }
 
     @Bean
@@ -57,9 +62,7 @@ public class InMemProcessEngineConfiguration {
 
         try {
             Method setApplicationContext = SpringProcessEngineConfiguration.class.getDeclaredMethod("setApplicationContext", ApplicationContext.class);
-            if (setApplicationContext != null) {
-                setApplicationContext.invoke(config, applicationContext);
-            }
+            setApplicationContext.invoke(config, applicationContext);
         } catch (NoSuchMethodException e) {
             // expected for Camunda < 7.8.0
         }
@@ -68,11 +71,11 @@ public class InMemProcessEngineConfiguration {
         config.setDataSource(dataSource());
         config.setDatabaseSchemaUpdate("true");
         config.setHistory(ProcessEngineConfiguration.HISTORY_FULL);
+        config.setHistoryService(historyService());
         config.setJobExecutorActivate(false);
         config.setTaskService(taskService());
         config.init();
         return config;
-
     }
 
     @Bean
@@ -86,7 +89,6 @@ public class InMemProcessEngineConfiguration {
         factoryBean.setApplicationContext(applicationContext);
         factoryBean.setProcessEngineConfiguration(processEngineConfiguration());
         return factoryBean;
-
     }
 
 }
