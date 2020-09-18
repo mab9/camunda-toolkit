@@ -2,10 +2,12 @@ package ch.mab.camunda;
 
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
 
 import ch.mab.camunda.dev.process.DevelopingDelegate;
 import ch.mab.camunda.dev.process.DevelopingListener;
 import ch.mab.camunda.dev.process.LogService;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -14,12 +16,10 @@ import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
-import org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -40,6 +40,13 @@ public class DevelopingProcessTest {
     public static ProcessEngineRule processEngineRule;
 
     private final String KEY_DEVELOPMENT_PROCESS = "development-process";
+    private final String TASK_ID_COMMITMENT = "Commitment";
+    private final String TASK_ID_G0 = "go";
+    private final String TASK_ID_PLANNING = "planning";
+    private final String TASK_ID_DEVELOPING = "Developing";
+    private final String TASK_ID_TESTING = "Testing";
+    private final String TASK_ID_DEPLOYMENT = "Deployment";
+    private final String TASK_ID_REVIEW = "Review";
 
     @Autowired
     TaskService taskService;
@@ -90,31 +97,36 @@ public class DevelopingProcessTest {
 
         // human task
         runtimeService.setVariable(executionId, "committed", false);
-        complete(BpmnAwareTests.task());
+        complete(task());
         assertThat(processInstance).isWaitingAt("Commitment");
 
         // human task
         runtimeService.setVariable(task.getExecutionId(), "committed", true);
-        complete(BpmnAwareTests.task());
+        complete(task());
         assertThat(processInstance).isWaitingAt("go");
 
         // human task
         runtimeService.setVariable(task.getExecutionId(), "go", false);
-        complete(BpmnAwareTests.task());
+        complete(task());
         assertThat(processInstance).isWaitingAt("go");
 
         // human task
         runtimeService.setVariable(task.getExecutionId(), "go", true);
-        complete(BpmnAwareTests.task());
+        complete(task());
         assertThat(processInstance).isEnded();
 
         List<HistoricActivityInstance> list = historyService.createHistoricActivityInstanceQuery().activityType("serviceTask").list();
         list.addAll(historyService.createHistoricActivityInstanceQuery().activityType("userTask").list());
         list.sort(Comparator.comparing(HistoricActivityInstance::getStartTime));
 
+        // the process has 12 tasks (service and user tasks)
         Assertions.assertEquals(12, list.size());
 
-        // todo assert all tasks according execution
-
+        // assert the expected history with all the tasks that could not be tested
+        // within the normal flow from above.
+        List<String> expectedHistory = Arrays.asList(TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT, TASK_ID_REVIEW);
+        for (int i = 0; i < expectedHistory.size(); i++) {
+            Assertions.assertEquals(expectedHistory.get(i), list.get(i).getActivityId());
+        }
     }
 }
