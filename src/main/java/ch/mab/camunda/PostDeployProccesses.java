@@ -13,7 +13,7 @@ public class PostDeployProccesses {
     private RuntimeService runtimeService;
 
     @EventListener
-    private void processPostDeploy(PostDeployEvent event) {
+    public void processPostDeploy(PostDeployEvent event) {
        // runtimeService.startProcessInstanceByKey("schdulerMainProcess");
        // runtimeService.startProcessInstanceByKey("cycleTest");
         runtimeService.startProcessInstanceByKey("parallel_with_timer");

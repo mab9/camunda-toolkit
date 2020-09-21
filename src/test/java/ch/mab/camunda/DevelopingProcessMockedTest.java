@@ -13,15 +13,18 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {InMemProcessEngineConfiguration.class})
-public class DevelopingProcessTest {
+public class DevelopingProcessMockedTest {
 
     @Rule
     @ClassRule
@@ -50,6 +53,9 @@ public class DevelopingProcessTest {
 
     @Autowired
     TaskService taskService;
+
+    @Autowired
+    RepositoryService repositoryService;
 
     @Autowired
     ProcessEngine processEngine;
@@ -78,6 +84,18 @@ public class DevelopingProcessTest {
     public void start_process() {
         RuntimeService runtimeService = processEngine.getRuntimeService();
         final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS);
+        assertThat(processInstance).isStarted();
+    }
+
+    @Ignore ("error: annotation @Deployment deletes deployment for DevelopingProcessMockedTest.start_process_byManualDeployment")
+    @Test
+    public void start_process_byManualDeployment() {
+        org.camunda.bpm.engine.repository.Deployment deploy = repositoryService.createDeployment().addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
+        // loads all deployed process definitions
+        //List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
+        RuntimeService runtimeService = processEngine.getRuntimeService();
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
+        final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey());
         assertThat(processInstance).isStarted();
     }
 
