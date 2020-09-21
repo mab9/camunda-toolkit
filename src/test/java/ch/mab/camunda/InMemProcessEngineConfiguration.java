@@ -5,9 +5,11 @@ import javax.sql.DataSource;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.impl.HistoryServiceImpl;
 import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
+import org.camunda.bpm.engine.impl.RuntimeServiceImpl;
 import org.camunda.bpm.engine.impl.TaskServiceImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
@@ -19,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -64,6 +65,11 @@ public class InMemProcessEngineConfiguration {
     }
 
     @Bean
+    public RuntimeService runtimeService() {
+        return new RuntimeServiceImpl();
+    }
+
+    @Bean
     public ProcessEngineConfigurationImpl processEngineConfiguration() throws Exception {
 
         SpringProcessWithCoverageEngineConfiguration config = new SpringProcessWithCoverageEngineConfiguration();
@@ -82,6 +88,7 @@ public class InMemProcessEngineConfiguration {
         config.setHistoryService(historyService());
         config.setJobExecutorActivate(false);
         config.setTaskService(taskService());
+        config.setRuntimeService(runtimeService());
         config.setRepositoryService(repositoryService());
         config.init();
         return config;
