@@ -4,6 +4,7 @@ import static org.camunda.bpm.engine.test.assertions.bpmn.AbstractAssertions.pro
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.execute;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.externalTask;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.job;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.repositoryService;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
@@ -15,11 +16,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -42,7 +45,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {InMemProcessEngineConfiguration.class})
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)  // resolves :annotation @Deployment deletes deployment when deploying by hand
 public class DevelopingProcessMockedTest {
 
     @Rule
@@ -69,6 +71,9 @@ public class DevelopingProcessMockedTest {
 
     @Autowired
     HistoryService historyService;
+
+    @Autowired
+    ExternalTaskService externalTaskService;
 
     @MockBean(name = "developingListener")
     DevelopingListener developingListener;
@@ -98,6 +103,7 @@ public class DevelopingProcessMockedTest {
         Uses the bpmnAwareTest class to invoke services.
         Fantastic way to reduce the code used for the test setup.
      */
+    @Ignore("Can't deploy: annotation @Deployment deletes deployment for DevelopingProcessMockedTest.start_process_byManualDeployment")
     @Test
     public void start_process_byManualDeployment() {
         org.camunda.bpm.engine.repository.Deployment deploy = repositoryService().createDeployment().addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
@@ -122,6 +128,8 @@ public class DevelopingProcessMockedTest {
         execute(job());
 
         Task task = taskService.createTaskQuery().singleResult();
+
+        // same as processInstance.getId(). Pay attention this ID may change!
         final String executionId = task.getExecutionId();
 
         assertThat(processInstance).isWaitingAt("Commitment");
@@ -139,11 +147,27 @@ public class DevelopingProcessMockedTest {
         // human task
         runtimeService.setVariable(task.getExecutionId(), "committed", true);
         complete(task());
+
+        // asynchronous external task has to be handled
+        assertThat(processInstance).isWaitingAt("Testing");
+        ExternalTask externalTask = externalTask(processInstance);
+        assertThat(externalTask).hasActivityId("Testing");
+        assertThat(externalTask).hasTopicName("externals");
+        complete(externalTask);
+
         assertThat(processInstance).isWaitingAt("go");
 
         // human task
         runtimeService.setVariable(task.getExecutionId(), "go", false);
         complete(task());
+
+        // asynchronous external task has to be handled
+        assertThat(processInstance).isWaitingAt("Testing");
+        externalTask = externalTask(processInstance);
+        assertThat(externalTask).hasActivityId("Testing");
+        assertThat(externalTask).hasTopicName("externals");
+        complete(externalTask);
+
         assertThat(processInstance).isWaitingAt("go");
 
         // human task
