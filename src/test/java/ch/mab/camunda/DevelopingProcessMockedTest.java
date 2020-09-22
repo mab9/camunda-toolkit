@@ -107,7 +107,6 @@ public class DevelopingProcessMockedTest {
         // committed is a default variable...
         //ProcessInstance processInstance = runtimeService.createProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS).setVariable("committed", false).execute();
 
-        TaskService taskService = processEngine.getTaskService();
         Task task = taskService.createTaskQuery().singleResult();
         final String executionId = task.getExecutionId();
 
@@ -146,5 +145,9 @@ public class DevelopingProcessMockedTest {
         for (int i = 0; i < expectedHistory.size(); i++) {
             Assertions.assertEquals(expectedHistory.get(i), list.get(i).getActivityId());
         }
+
+        // shorter way without history service
+        assertThat(processInstance).isEnded().hasPassedInOrder(
+            TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT, TASK_ID_REVIEW);
     }
 }

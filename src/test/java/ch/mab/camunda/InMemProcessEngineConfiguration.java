@@ -102,7 +102,6 @@ public class InMemProcessEngineConfiguration {
     @Bean
     public ProcessEngineFactoryBean processEngine() throws Exception {
         ProcessEngineFactoryBean factoryBean = new ProcessEngineFactoryBean();
-        factoryBean.setApplicationContext(applicationContext);
         factoryBean.setProcessEngineConfiguration(processEngineConfiguration());
         return factoryBean;
     }
