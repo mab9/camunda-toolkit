@@ -4,7 +4,7 @@
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_08kfdh1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="planning" name="Planning" camunda:expression="${&#39;true&#39; == &#39;true&#39;}" camunda:resultVariable="planned">
+    <bpmn:serviceTask id="planning" name="Planning" camunda:asyncBefore="true" camunda:expression="${&#39;true&#39; == &#39;true&#39;}" camunda:resultVariable="planned">
       <bpmn:incoming>SequenceFlow_08kfdh1</bpmn:incoming>
       <bpmn:incoming>condition.commited.false</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0g0u8ny</bpmn:outgoing>

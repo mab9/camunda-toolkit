@@ -1,7 +1,11 @@
 package ch.mab.camunda;
 
+import static org.camunda.bpm.engine.test.assertions.bpmn.AbstractAssertions.processEngine;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.execute;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.job;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.repositoryService;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
 
 import ch.mab.camunda.dev.process.DevelopingDelegate;
@@ -31,11 +35,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {InMemProcessEngineConfiguration.class})
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)  // resolves :annotation @Deployment deletes deployment when deploying by hand
 public class DevelopingProcessMockedTest {
 
     @Rule
@@ -87,14 +94,17 @@ public class DevelopingProcessMockedTest {
         assertThat(processInstance).isStarted();
     }
 
-    @Ignore ("error: annotation @Deployment deletes deployment for DevelopingProcessMockedTest.start_process_byManualDeployment")
+    /*
+        Uses the bpmnAwareTest class to invoke services.
+        Fantastic way to reduce the code used for the test setup.
+     */
     @Test
     public void start_process_byManualDeployment() {
-        org.camunda.bpm.engine.repository.Deployment deploy = repositoryService.createDeployment().addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
+        org.camunda.bpm.engine.repository.Deployment deploy = repositoryService().createDeployment().addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
         // loads all deployed process definitions
         //List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
-        RuntimeService runtimeService = processEngine.getRuntimeService();
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
+        RuntimeService runtimeService = processEngine().getRuntimeService();
+        ProcessDefinition processDefinition = repositoryService().createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
         final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey());
         assertThat(processInstance).isStarted();
     }
@@ -107,6 +117,10 @@ public class DevelopingProcessMockedTest {
         // committed is a default variable...
         //ProcessInstance processInstance = runtimeService.createProcessInstanceByKey(KEY_DEVELOPMENT_PROCESS).setVariable("committed", false).execute();
 
+        // asynchronous service tasks has to be handled
+        assertThat(processInstance).isWaitingAt(TASK_ID_PLANNING);
+        execute(job());
+
         Task task = taskService.createTaskQuery().singleResult();
         final String executionId = task.getExecutionId();
 
@@ -115,6 +129,11 @@ public class DevelopingProcessMockedTest {
         // human task
         runtimeService.setVariable(executionId, "committed", false);
         complete(task());
+
+        // asynchronous service tasks has to be handled
+        assertThat(processInstance).isWaitingAt(TASK_ID_PLANNING);
+        execute(job());
+
         assertThat(processInstance).isWaitingAt("Commitment");
 
         // human task
