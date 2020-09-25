@@ -91,6 +91,10 @@ public class DevelopingProcessMockedTest {
         processEngineRule = TestCoverageProcessEngineRuleBuilder.create(processEngine).build();
     }
 
+    /*
+        nothing is done here, as we just want to check for exceptions during
+        deployment
+     */
     @Test
     @Deployment(resources = KEY_DEVELOPMENT_PROCESS + ".bpmn")
     public void start_process() {
@@ -102,6 +106,9 @@ public class DevelopingProcessMockedTest {
     /*
         Uses the bpmnAwareTest class to invoke services.
         Fantastic way to reduce the code used for the test setup.
+
+        nothing is done here, as we just want to check for exceptions during
+        deployment
      */
     @Ignore("Can't deploy: annotation @Deployment deletes deployment for DevelopingProcessMockedTest.start_process_byManualDeployment")
     @Test
