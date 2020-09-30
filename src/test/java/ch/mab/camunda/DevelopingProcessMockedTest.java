@@ -194,7 +194,7 @@ public class DevelopingProcessMockedTest {
         assertMultiInstanceTaskIsWaitingAt(TASK_ID_LOOPER);
         execute(job());
 
-        // asynchronous multi instance task has to be handled
+        // asynchronous multi instance sub process task has to be handled
         assertThat(processInstance).isWaitingAt(TASK_ID_RETRO);
         List<Job> jobs = processEngineRule.getManagementService().createJobQuery().list();
         Assertions.assertEquals(2, jobs.size());   // 2 loops is defined within the process definition
