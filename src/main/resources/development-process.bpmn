@@ -58,9 +58,9 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_07t2w86" sourceRef="Deployment" targetRef="Review" />
     <bpmn:endEvent id="EndEvent_0wxjy79">
-      <bpmn:incoming>SequenceFlow_11gv2tl</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1dxpic0</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_11gv2tl" sourceRef="Review" targetRef="EndEvent_0wxjy79" />
+    <bpmn:sequenceFlow id="SequenceFlow_11gv2tl" sourceRef="Review" targetRef="Retro" />
     <bpmn:sequenceFlow id="SequenceFlow_08kfdh1" sourceRef="StartEvent_1" targetRef="planning" />
     <bpmn:sequenceFlow id="SequenceFlow_0g0u8ny" sourceRef="planning" targetRef="Commitment" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_02cizmj">
@@ -82,6 +82,11 @@
       <bpmn:documentation>With camunda:expression it is possible to evaluate a value expression or to invoke a method expression. You can use special variables which are available inside an expression or Spring and CDI beans.</bpmn:documentation>
     </bpmn:dataObjectReference>
     <bpmn:dataObject id="DataObject_1679n03" />
+    <bpmn:serviceTask id="Retro" name="Retro" camunda:asyncBefore="true" camunda:expression="${logService.log(&#34;retro&#34;)}">
+      <bpmn:incoming>SequenceFlow_11gv2tl</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1dxpic0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1dxpic0" sourceRef="Retro" targetRef="EndEvent_0wxjy79" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="development-process">
@@ -128,7 +133,7 @@
         <di:waypoint x="1555" y="457" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_0wxjy79_di" bpmnElement="EndEvent_0wxjy79">
-        <dc:Bounds x="1768" y="439" width="36" height="36" />
+        <dc:Bounds x="1976" y="439" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_11gv2tl_di" bpmnElement="SequenceFlow_11gv2tl">
         <di:waypoint x="1655" y="457" />
@@ -188,6 +193,13 @@
           <dc:Bounds x="201" y="597" width="88" height="198" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1diu83r_di" bpmnElement="Retro" bioc:stroke="#FB8C00" bioc:fill="#FFE0B2">
+        <dc:Bounds x="1768" y="417" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1dxpic0_di" bpmnElement="SequenceFlow_1dxpic0">
+        <di:waypoint x="1868" y="457" />
+        <di:waypoint x="1976" y="457" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

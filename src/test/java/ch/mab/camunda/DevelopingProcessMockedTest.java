@@ -59,6 +59,7 @@ public class DevelopingProcessMockedTest {
     private final String TASK_ID_TESTING = "Testing";
     private final String TASK_ID_DEPLOYMENT = "Deployment";
     private final String TASK_ID_REVIEW = "Review";
+    private final String TASK_ID_RETRO = "Retro";
 
     @Autowired
     TaskService taskService;
@@ -180,6 +181,11 @@ public class DevelopingProcessMockedTest {
         // human task
         runtimeService.setVariable(task.getExecutionId(), "go", true);
         complete(task());
+
+        // asynchronous service tasks has to be handled
+        assertThat(processInstance).isWaitingAt(TASK_ID_RETRO);
+        execute(job());
+
         assertThat(processInstance).isEnded();
 
         List<HistoricActivityInstance> list = historyService.createHistoricActivityInstanceQuery().activityType("serviceTask").list();
@@ -187,17 +193,17 @@ public class DevelopingProcessMockedTest {
         list.sort(Comparator.comparing(HistoricActivityInstance::getStartTime));
 
         // the process has 12 tasks (service and user tasks)
-        Assertions.assertEquals(12, list.size());
+        Assertions.assertEquals(13, list.size());
 
         // assert the expected history with all the tasks that could not be tested
         // within the normal flow from above.
-        List<String> expectedHistory = Arrays.asList(TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT, TASK_ID_REVIEW);
+        List<String> expectedHistory = Arrays.asList(TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT, TASK_ID_REVIEW, TASK_ID_RETRO);
         for (int i = 0; i < expectedHistory.size(); i++) {
             Assertions.assertEquals(expectedHistory.get(i), list.get(i).getActivityId());
         }
 
         // shorter way without history service
         assertThat(processInstance).isEnded().hasPassedInOrder(
-            TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT, TASK_ID_REVIEW);
+            TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT, TASK_ID_REVIEW, TASK_ID_RETRO);
     }
 }
