@@ -21,6 +21,12 @@
     <bpmn:serviceTask id="Developing" name="Developing" camunda:delegateExpression="${developingDelegate}">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${developingListener}" event="start" />
+        <camunda:field name="processPlanningExpression">
+          <camunda:string>PLANNER</camunda:string>
+        </camunda:field>
+        <camunda:field name="processPlanningFixedValue">
+          <camunda:string>PROBLEM_FIXXXXXXXXXXXXED</camunda:string>
+        </camunda:field>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0g6sjcd</bpmn:incoming>
       <bpmn:incoming>condition.go.false</bpmn:incoming>
