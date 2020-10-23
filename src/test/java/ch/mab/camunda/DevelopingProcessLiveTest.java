@@ -39,10 +39,12 @@ public class DevelopingProcessLiveTest {
 
     @Test
     public void start_process_byManualDeployment() {
-        org.camunda.bpm.engine.repository.Deployment deploy = repositoryService.createDeployment().addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
+        org.camunda.bpm.engine.repository.Deployment deploy = repositoryService.createDeployment()
+            .addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
         // loads all deployed process definitions
         //List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+            .deploymentId(deploy.getId()).singleResult();
         final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey());
         assertThat(processInstance).isStarted();
     }

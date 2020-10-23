@@ -1,5 +1,6 @@
 package ch.mab.camunda.dev.process;
 
+import java.util.Map;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -8,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 
 /*
@@ -23,6 +22,8 @@ public class DevelopingDelegate implements JavaDelegate {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private Expression processPlanningExpression;
     private FixedValue processPlanningFixedValue;
+
+
     @Autowired
     private DevelopingService developingService;
 
@@ -33,7 +34,6 @@ public class DevelopingDelegate implements JavaDelegate {
         log.info("Input field value Expression 2 {}", processPlanningExpression.getExpressionText());
         log.info("Input field value FixedValue 1 {}", processPlanningFixedValue);
         log.info("Input field value FixedValue 2 {}", processPlanningFixedValue.getExpressionText());
-
 
         log.info("Devs implement a incredible feature: {}", developingService.developeNewFeature());
 
