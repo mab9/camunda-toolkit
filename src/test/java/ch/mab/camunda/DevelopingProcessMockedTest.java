@@ -13,10 +13,12 @@ import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
 import ch.mab.camunda.dev.process.DevelopingDelegate;
 import ch.mab.camunda.dev.process.DevelopingListener;
 import ch.mab.camunda.dev.process.LogService;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.PostConstruct;
+
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
@@ -121,12 +123,12 @@ public class DevelopingProcessMockedTest {
     @Test
     public void start_process_byManualDeployment() {
         org.camunda.bpm.engine.repository.Deployment deploy = repositoryService().createDeployment()
-            .addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
+                .addClasspathResource(KEY_DEVELOPMENT_PROCESS + ".bpmn").deploy();
         // loads all deployed process definitions
         //List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
         RuntimeService runtimeService = processEngine().getRuntimeService();
         ProcessDefinition processDefinition = repositoryService().createProcessDefinitionQuery()
-            .deploymentId(deploy.getId()).singleResult();
+                .deploymentId(deploy.getId()).singleResult();
         final ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey());
         assertThat(processInstance).isStarted();
     }
@@ -207,7 +209,7 @@ public class DevelopingProcessMockedTest {
         assertThat(processInstance).isEnded();
 
         List<HistoricActivityInstance> list = historyService.createHistoricActivityInstanceQuery()
-            .activityType("serviceTask").list();
+                .activityType("serviceTask").list();
         list.addAll(historyService.createHistoricActivityInstanceQuery().activityType("userTask").list());
         list.sort(Comparator.comparing(HistoricActivityInstance::getStartTime));
 
@@ -217,18 +219,18 @@ public class DevelopingProcessMockedTest {
         // assert the expected history with all the tasks that could not be tested
         // within the normal flow from above.
         List<String> expectedHistory = Arrays
-            .asList(TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING,
-                TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT,
-                TASK_ID_REVIEW, TASK_ID_RETRO, TASK_ID_RETRO, TASK_ID_RESET);
+                .asList(TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING,
+                        TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT,
+                        TASK_ID_REVIEW, TASK_ID_RETRO, TASK_ID_RETRO, TASK_ID_RESET);
         for (int i = 0; i < expectedHistory.size(); i++) {
             Assertions.assertEquals(expectedHistory.get(i), list.get(i).getActivityId());
         }
 
         // shorter way without history service
         assertThat(processInstance).isEnded().hasPassedInOrder(
-            TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING,
-            TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT,
-            TASK_ID_REVIEW, TASK_ID_RETRO, TASK_ID_RETRO, TASK_ID_RESET);
+                TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_PLANNING, TASK_ID_COMMITMENT, TASK_ID_DEVELOPING,
+                TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEVELOPING, TASK_ID_TESTING, TASK_ID_G0, TASK_ID_DEPLOYMENT,
+                TASK_ID_REVIEW, TASK_ID_RETRO, TASK_ID_RETRO, TASK_ID_RESET);
     }
 
     protected void assertMultiInstanceTaskIsWaitingAt(String activityId) {
@@ -236,6 +238,6 @@ public class DevelopingProcessMockedTest {
         org.assertj.core.api.Assertions.assertThat(activeActivityIds).isNotEmpty();
 
         org.assertj.core.api.Assertions.assertThat(activeActivityIds.get(0))
-            .isEqualTo(activityId + MULTI_INSTANCE_TASK_POSTFIX);
+                .isEqualTo(activityId + MULTI_INSTANCE_TASK_POSTFIX);
     }
 }
