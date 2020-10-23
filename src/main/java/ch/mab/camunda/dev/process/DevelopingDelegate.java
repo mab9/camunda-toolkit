@@ -1,6 +1,5 @@
 package ch.mab.camunda.dev.process;
 
-import java.util.Map;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -9,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 /*
