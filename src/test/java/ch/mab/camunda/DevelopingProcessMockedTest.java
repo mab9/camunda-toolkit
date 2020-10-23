@@ -1,30 +1,9 @@
 package ch.mab.camunda;
 
-import static org.camunda.bpm.engine.test.assertions.bpmn.AbstractAssertions.processEngine;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.execute;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.externalTask;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.job;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.repositoryService;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
-
 import ch.mab.camunda.dev.process.DevelopingDelegate;
 import ch.mab.camunda.dev.process.DevelopingListener;
 import ch.mab.camunda.dev.process.LogService;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import javax.annotation.PostConstruct;
-
-import org.camunda.bpm.engine.ExternalTaskService;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -45,6 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.camunda.bpm.engine.test.assertions.bpmn.AbstractAssertions.processEngine;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.*;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {InMemProcessEngineConfiguration.class})

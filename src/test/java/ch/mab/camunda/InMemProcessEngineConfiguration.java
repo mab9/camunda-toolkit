@@ -1,25 +1,13 @@
 package ch.mab.camunda;
 
-import java.lang.reflect.Method;
-import javax.sql.DataSource;
-import org.camunda.bpm.engine.ExternalTaskService;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.ProcessEngineConfiguration;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
-import org.camunda.bpm.engine.impl.ExternalTaskServiceImpl;
-import org.camunda.bpm.engine.impl.HistoryServiceImpl;
-import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
-import org.camunda.bpm.engine.impl.RuntimeServiceImpl;
-import org.camunda.bpm.engine.impl.TaskServiceImpl;
+import org.camunda.bpm.engine.*;
+import org.camunda.bpm.engine.impl.*;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
 import org.camunda.bpm.engine.spring.ProcessEngineFactoryBean;
 import org.camunda.bpm.engine.spring.SpringExpressionManager;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.extension.process_test_coverage.spring.SpringProcessWithCoverageEngineConfiguration;
-import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
@@ -27,6 +15,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import javax.sql.DataSource;
+import java.lang.reflect.Method;
 
 /**
  * Adapted from: https://github.com/camunda/camunda-bpm-platform/blob/master/engine-spring/src/test/java/org/camunda/bpm/engine/spring/test/configuration/InMemProcessEngineConfiguration.java
@@ -68,7 +59,9 @@ public class InMemProcessEngineConfiguration {
     }
 
     @Bean
-    public ExternalTaskService externalTaskService() { return new ExternalTaskServiceImpl(); }
+    public ExternalTaskService externalTaskService() {
+        return new ExternalTaskServiceImpl();
+    }
 
     @Bean
     public RuntimeService runtimeService() {
