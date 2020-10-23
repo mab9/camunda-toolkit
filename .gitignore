@@ -1,4 +1,6 @@
 target
-.idea
-!.idea/codeStyles
 *.iml
+
+# whitelist code style folder to share config
+.idea/*
+!.idea/codeStyles
