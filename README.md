@@ -122,6 +122,7 @@ on [creating a pull request](https://help.github.com/en/github/collaborating-wit
 
 ## My next ideas
 
+- clean up the code and organize it so that it is more friendly to use as a playground and to get warm with 
 - Add external task usage example
 - Add accessor pattern example to handle the variable scope
 - do you have ideas, then write me an email!
