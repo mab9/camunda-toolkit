@@ -10,7 +10,7 @@ import java.util.Map;
 
 
 /*
-    This is a simple delegate expression for an service task
+    This is a simple delegate expression for a service task
  */
 @Service
 public class RequestProcessorService implements JavaDelegate {

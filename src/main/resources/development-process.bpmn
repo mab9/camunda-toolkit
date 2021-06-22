@@ -32,7 +32,7 @@
       <bpmn:incoming>condition.go.false</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0zrfjua</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Testing" name="Testing" camunda:type="external" camunda:topic="externals">
+    <bpmn:serviceTask id="Testing" name="Testing" camunda:expression="${logService.log(&#34;testing&#34;)}">
       <bpmn:incoming>SequenceFlow_0zrfjua</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0fqnkig</bpmn:outgoing>
     </bpmn:serviceTask>
