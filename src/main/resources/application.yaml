@@ -9,3 +9,7 @@ camunda.bpm:
 camunda:
   bpm:
     auto-deployment-enabled: true
+
+  external:
+    tasks:
+      polling-interval: 3000
