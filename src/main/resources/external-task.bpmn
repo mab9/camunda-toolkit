@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_18taov9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
+  <bpmn:process id="external-task" name="external-task" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_0vr59tg</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="start" name="Log start" camunda:asyncBefore="true" camunda:expression="${logService.log(&#34;process started&#34;)}">
+      <bpmn:incoming>SequenceFlow_0vr59tg</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_19qhual</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0vr59tg" sourceRef="StartEvent_1" targetRef="start" />
+    <bpmn:serviceTask id="end" name="Log end" camunda:asyncBefore="true" camunda:expression="${logService.log(&#34;process ended&#34;)}">
+      <bpmn:incoming>SequenceFlow_0mdozjy</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1uek5vv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_0xdxwve">
+      <bpmn:incoming>SequenceFlow_1uek5vv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1uek5vv" sourceRef="end" targetRef="EndEvent_0xdxwve" />
+    <bpmn:sequenceFlow id="SequenceFlow_19qhual" sourceRef="start" targetRef="worker" />
+    <bpmn:sequenceFlow id="SequenceFlow_0mdozjy" sourceRef="worker" targetRef="end" />
+    <bpmn:serviceTask id="worker" name="worker" camunda:asyncBefore="true" camunda:type="external" camunda:topic="worker">
+      <bpmn:incoming>SequenceFlow_19qhual</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0mdozjy</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="external-task">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="197" y="194" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_024pztt_di" bpmnElement="start">
+        <dc:Bounds x="318" y="172" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0vr59tg_di" bpmnElement="SequenceFlow_0vr59tg">
+        <di:waypoint x="233" y="212" />
+        <di:waypoint x="318" y="212" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0mm4x67_di" bpmnElement="end">
+        <dc:Bounds x="761" y="172" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0xdxwve_di" bpmnElement="EndEvent_0xdxwve">
+        <dc:Bounds x="917" y="194" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1uek5vv_di" bpmnElement="SequenceFlow_1uek5vv">
+        <di:waypoint x="861" y="212" />
+        <di:waypoint x="917" y="212" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_19qhual_di" bpmnElement="SequenceFlow_19qhual">
+        <di:waypoint x="418" y="212" />
+        <di:waypoint x="531" y="212" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0mdozjy_di" bpmnElement="SequenceFlow_0mdozjy">
+        <di:waypoint x="631" y="212" />
+        <di:waypoint x="761" y="212" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_19ijc7q_di" bpmnElement="worker">
+        <dc:Bounds x="531" y="172" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

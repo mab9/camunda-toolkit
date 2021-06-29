@@ -16,8 +16,9 @@ public class PostDeployProccesses {
     public void processPostDeploy(PostDeployEvent event) {
         // runtimeService.startProcessInstanceByKey("schdulerMainProcess");
         // runtimeService.startProcessInstanceByKey("cycleTest");
-        runtimeService.startProcessInstanceByKey("parallel_with_timer");
-        runtimeService.startProcessInstanceByKey("development-process");
-        runtimeService.startProcessInstanceByKey("postDeployProcess");
+        runtimeService.startProcessInstanceByKey("external-task");
+        // runtimeService.startProcessInstanceByKey("parallel_with_timer");
+        // runtimeService.startProcessInstanceByKey("development-process");
+        // runtimeService.startProcessInstanceByKey("postDeployProcess");
     }
 }
