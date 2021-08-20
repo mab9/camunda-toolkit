@@ -2,7 +2,6 @@ package ch.mab.camunda;
 
 import ch.mab.camunda.dev.process.DevelopingDelegate;
 import ch.mab.camunda.dev.process.DevelopingListener;
-import ch.mab.camunda.dev.process.LogService;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;

@@ -1,4 +1,4 @@
-package ch.mab.camunda.dev.process;
+package ch.mab.camunda;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,4 +31,7 @@ public class LogService {
         log.info("do nothing");
     }
 
+    public void printMessage(String message) {
+        log.info("{}", message);
+    }
 }
